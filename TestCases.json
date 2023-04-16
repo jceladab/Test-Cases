@@ -1,0 +1,63 @@
+//** PARTICIONAMIENTO **//
+
+//Se arranca el particionamiento//
+
+cluster = new ShardingTest ({shards: 3, chunksize:1})
+
+/** Verificamos la distribución de la información ingresada **/  
+
+shard1 = new Mongo("localhost:20000")
+shard1DB = shard1.getDB("Mundial")
+shard1DB.Espectadores.count()
+
+shard2 = new Mongo("localhost:20001")
+shard2DB = shard2.getDB("Mundial")
+shard2DB.Espectadores.count()
+
+shard3 = new Mongo("localhost:20002")
+shard3DB = shard3.getDB("Mundial")
+shard3DB.Espectadores.count()
+
+//** INSERCIÓN **//
+
+db = (new Mongo("localhost:20006")).getDB("Mundial") 
+
+db.Equipos.insertMany([
+    {_id:33, Continente: "America", Nombre: "Colombia"},
+    {_id:34, Continente: "Oceania", Nombre: "Nueva Zelanda"},
+    {_id:35, Continente: "Africa", Nombre: "Nigeria"},
+    {_id:36, Continente: "Europa", Nombre: "Noruega"},
+    {_id:37, Continente: "Asia", Nombre: "Emiratos Arabes Unidos"}
+]);
+
+
+
+db.DirectoresTecnicos.insertMany([
+    {_id:33, Nombre: "Nestor Lorenzo", Seleccion: "Colombia"},
+    {_id:34, Nombre: "Darren Bazeley", Seleccion: "Nueva Zelanda"},
+    {_id:35, Nombre: "Ståle Solbakken", Seleccion: "Noruega"},
+    {_id:36, Nombre: "Rodolfo Arruabarrena", Seleccion: "Emiratos Arabes Unidos"},
+])
+
+
+//** TIEMPOS DE RESPUESTA **//
+
+/** Verificamos las inserciones realizadas **/
+
+db.Equipos.count()
+db.DirectoresTecnicos.count()
+
+
+
+//** FUNCIÓN DEL BALANCER **//
+
+//Realizamos un cargue masivo a la colección de Espectadores//
+
+for(i=0;i<10000;i++){
+	db.Espectadores.insert({_id : +i, Nombre : "Espectador" +i, Fecha : new Date()});
+}
+
+db.Espectadores.count()
+
+
+
